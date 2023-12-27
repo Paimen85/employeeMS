@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -43,6 +42,21 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeDtos.add(EmployeeMapper.mapToEmployeeDto(e));
         }
         return employeeDtos;
+    }
+
+    @Override
+    public EmployeeDto updateEmployee(Long employeeId, EmployeeDto updatedEmployee) {
+
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(()->new ResourceNotFoundException("Employee is not found with id: " + employeeId));
+
+        employee.setFirstName(updatedEmployee.getFirstName());
+        employee.setLastName(updatedEmployee.getLastName());
+        employee.setEmail(updatedEmployee.getEmail());
+
+        Employee editedEmployee = employeeRepository.save(employee);
+
+        return EmployeeMapper.mapToEmployeeDto(editedEmployee);
     }
 
 
