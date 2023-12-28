@@ -11,6 +11,12 @@ const EmployeeComponent = () => {
     email: "",
   });
 
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
+
   const handleFirstName = (e) => {
     setEmployee({
       ...employee,
@@ -38,16 +44,49 @@ const EmployeeComponent = () => {
 
   const saveEmployee = async (e) => {
     e.preventDefault();
-    await EmployeeService.createEmployee(employee)
-      .then((res) => {
-        navigate("/employees");
-      })
-      .catch((e) => console.log(e));
+
+    if (validateForm()) {
+      await EmployeeService.createEmployee(employee)
+        .then((res) => {
+          navigate("/employees");
+        })
+        .catch((e) => console.log(e));
+    }
   };
+
+  const validateForm = () => {
+    let valid = true;
+    const errorsCopy = { ...errors };
+    if (employee.firstName.trim()) {
+      errorsCopy.firstName = "";
+    } else {
+      errorsCopy.firstName = "First name is required";
+      valid = false;
+    }
+
+    if (employee.lastName.trim()) {
+      errorsCopy.lastName = "";
+    } else {
+      errorsCopy.lastName = "Last name is required";
+      valid = false;
+    }
+
+    if (employee.email.trim()) {
+      errorsCopy.email = "";
+    } else {
+      errorsCopy.email = "Email is required";
+      valid = false;
+    }
+
+    setErrors(errorsCopy);
+
+    return valid;
+  };
+
   return (
     <div className="container">
       <div className="row">
-        <div className="card mt-5">
+        <div className="card mt-5 col-md-6 offset-md-3">
           <h2 className="text-center">Add Employee</h2>
           <div className="card-body">
             <form onSubmit={(e) => saveEmployee(e)}>
@@ -57,14 +96,16 @@ const EmployeeComponent = () => {
                 </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.firstName ? "is-invalid" : ""
+                  }`}
                   name="firstName"
                   id="firstName"
                   placeholder="Enter first name"
                   value={employee.firstName}
                   onChange={(e) => handleFirstName(e)}
-                  required
                 />
+                {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
               </div>
               <div className="form-group mb-3">
                 <label htmlFor="lastName" className="form-label">
@@ -72,14 +113,16 @@ const EmployeeComponent = () => {
                 </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.lastName ? "is-invalid" : ""
+                  }`}
                   name="lastName"
                   id="lastName"
                   placeholder="Enter last name"
                   value={employee.lastName}
                   onChange={(e) => handleLastName(e)}
-                  required
                 />
+                {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
               </div>
               <div className="form-group mb-3">
                 <label htmlFor="email" className="form-label">
@@ -87,19 +130,18 @@ const EmployeeComponent = () => {
                 </label>
                 <input
                   type="email"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.email ? "is-invalid" : ""
+                  }`}
                   name="email"
                   id="email"
                   placeholder="Enter email"
                   value={employee.email}
                   onChange={(e) => handleEmail(e)}
-                  required
                 />
+                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
               </div>
-              <button
-                type="submit"
-                className="btn btn-success"
-              >
+              <button type="submit" className="btn btn-success">
                 Create
               </button>
               <button
