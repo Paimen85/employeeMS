@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import EmployeeService from "../services/EmployeeService";
 
 const EmployeeComponent = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [employee, setEmployee] = useState({
@@ -83,11 +84,19 @@ const EmployeeComponent = () => {
     return valid;
   };
 
+  const pageTitle = () => {
+    if (id) {
+      return <h2 className="text-center">Edit Employee</h2>;
+    } else {
+    return <h2 className="text-center">Add Employee</h2>;
+    }
+  };
+
   return (
     <div className="container">
       <div className="row">
         <div className="card mt-5 col-md-6 offset-md-3">
-          <h2 className="text-center">Add Employee</h2>
+          {pageTitle()}
           <div className="card-body">
             <form onSubmit={(e) => saveEmployee(e)}>
               <div className="form-group mb-3">
@@ -105,7 +114,9 @@ const EmployeeComponent = () => {
                   value={employee.firstName}
                   onChange={(e) => handleFirstName(e)}
                 />
-                {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
+                {errors.firstName && (
+                  <div className="invalid-feedback">{errors.firstName}</div>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label htmlFor="lastName" className="form-label">
@@ -122,7 +133,9 @@ const EmployeeComponent = () => {
                   value={employee.lastName}
                   onChange={(e) => handleLastName(e)}
                 />
-                {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
+                {errors.lastName && (
+                  <div className="invalid-feedback">{errors.lastName}</div>
+                )}
               </div>
               <div className="form-group mb-3">
                 <label htmlFor="email" className="form-label">
@@ -130,16 +143,16 @@ const EmployeeComponent = () => {
                 </label>
                 <input
                   type="email"
-                  className={`form-control ${
-                    errors.email ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.email ? "is-invalid" : ""}`}
                   name="email"
                   id="email"
                   placeholder="Enter email"
                   value={employee.email}
                   onChange={(e) => handleEmail(e)}
                 />
-                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                {errors.email && (
+                  <div className="invalid-feedback">{errors.email}</div>
+                )}
               </div>
               <button type="submit" className="btn btn-success">
                 Create
