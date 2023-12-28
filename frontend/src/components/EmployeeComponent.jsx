@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import EmployeeService from "../services/EmployeeService";
 
@@ -17,6 +17,20 @@ const EmployeeComponent = () => {
     lastName: "",
     email: "",
   });
+
+  useEffect(() => {
+    if (id) {
+      loadEmployee(id);
+    }
+  }, []);
+
+  const loadEmployee = async (id) => {
+    await EmployeeService.getEmployeeById(id)
+      .then((res) => {
+        setEmployee(res.data);
+      })
+      .catch((error) => console.error(error));
+  };
 
   const handleFirstName = (e) => {
     setEmployee({
@@ -43,15 +57,23 @@ const EmployeeComponent = () => {
     navigate("/");
   };
 
-  const saveEmployee = async (e) => {
+  const saveOrUpdateEmployee = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
-      await EmployeeService.createEmployee(employee)
-        .then((res) => {
-          navigate("/employees");
-        })
-        .catch((e) => console.log(e));
+      if (id) {
+        await EmployeeService.updateEmployee(id, employee)
+          .then((res) => {
+            navigate("/employees");
+          })
+          .catch((e) => console.log(e));
+      } else {
+        await EmployeeService.createEmployee(employee)
+          .then((res) => {
+            navigate("/employees");
+          })
+          .catch((e) => console.log(e));
+      }
     }
   };
 
@@ -88,7 +110,23 @@ const EmployeeComponent = () => {
     if (id) {
       return <h2 className="text-center">Edit Employee</h2>;
     } else {
-    return <h2 className="text-center">Add Employee</h2>;
+      return <h2 className="text-center">Add Employee</h2>;
+    }
+  };
+
+  const buttonTitle = () => {
+    if (id) {
+      return (
+        <button type="submit" className="btn btn-success">
+          Update
+        </button>
+      );
+    } else {
+      return (
+        <button type="submit" className="btn btn-success">
+          Create
+        </button>
+      );
     }
   };
 
@@ -98,7 +136,7 @@ const EmployeeComponent = () => {
         <div className="card mt-5 col-md-6 offset-md-3">
           {pageTitle()}
           <div className="card-body">
-            <form onSubmit={(e) => saveEmployee(e)}>
+            <form onSubmit={(e) => saveOrUpdateEmployee(e)}>
               <div className="form-group mb-3">
                 <label htmlFor="firstName" className="form-label">
                   First Name
@@ -154,9 +192,7 @@ const EmployeeComponent = () => {
                   <div className="invalid-feedback">{errors.email}</div>
                 )}
               </div>
-              <button type="submit" className="btn btn-success">
-                Create
-              </button>
+              {buttonTitle()}
               <button
                 type="button"
                 className="btn btn-warning mx-3"
